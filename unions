@@ -1,0 +1,94 @@
+SELECT
+    job_title_short,
+    company_id
+    job_location
+
+FROM
+    january_job
+
+
+UNION
+
+SELECT
+    job_title_short,
+    company_id
+    job_location
+
+FROM
+    february_job
+
+
+UNION
+
+SELECT
+    job_title_short,
+    company_id
+    job_location
+
+FROM
+    march_job;
+
+
+--------------------------------------
+
+
+
+SELECT
+    job_title_short,
+    company_id
+    job_location
+
+FROM
+    january_job
+
+
+UNION ALL
+
+SELECT
+    job_title_short,
+    company_id
+    job_location
+
+FROM
+    february_job
+
+
+UNION ALL
+
+SELECT
+    job_title_short,
+    company_id
+    job_location
+
+FROM
+    march_job;
+
+----------------------------------
+
+
+SELECT
+    job_title_short,
+    job_location,
+    job_via,
+    job_posted_date::Date,
+    salary_year_avg
+
+From(
+    SELECT *
+    FROM
+        january_job
+    UNION ALL
+    SELECT *
+    FROM
+        february_job
+    UNION ALL
+    SELECT *
+    FROM
+        march_job
+) as quarter1_job_postings
+Where
+    salary_year_avg > 70000 and
+    job_title_short = 'Data Analyst'
+ORDER BY
+    salary_year_avg DESC
+;

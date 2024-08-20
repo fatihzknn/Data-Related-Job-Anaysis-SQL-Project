@@ -1,0 +1,84 @@
+
+----------------------------------------------------------------
+SELECT *
+FROM(
+    SELECT *
+    FROM job_postings_fact
+    WHERE EXTRACT(MONTH From job_posted_date) = 1
+) AS january_job;
+-----------------------------------------------------------------
+WITH january_job AS(
+    Select *
+    From job_postings_fact
+    Where EXTRACT(MONTH From job_posted_date) = 1
+)
+
+---------------------------------------------------------------------
+Select 
+    CASE
+            WHEN company_count <10  THEN 'Small'
+            WHEN company_count between 10 and 50  THEN 'Medium'
+            ELSE 'Large'
+    END AS company_size
+From(
+    SELECT  
+        COUNT(jp.company_id) as company_count,
+        cd.name
+    FROM 
+        job_postings_fact jp
+    LEFT JOIN 
+        company_dim cd
+    ON 
+        cd.company_id = jp.company_id
+    GROUP BY 
+        jp.company_id,
+        cd.name
+)
+;
+
+-----------------------------------------------------------------------
+WITH company_job_count AS (
+    Select 
+        company_id,
+        COUNT(*) As total_jobs
+    From
+        job_postings_fact
+    GROUP BY
+        company_id
+)
+Select 
+    company_dim.name as company_name,
+    company_job_count.total_jobs
+From 
+    company_dim
+LEFT JOIN 
+    company_job_count ON company_dim.company_id = company_job_count.company_id
+ORDER BY total_jobs DESC;
+
+----------------------------------------------------------------------
+
+
+WITH remote_job_skills AS (
+    SELECT
+        skill_id,
+        COUNT(*) AS skill_count
+    FROM
+        skills_job_dim AS skills_to_job
+    INNER JOIN
+        job_postings_fact AS job_postings ON job_postings.job_id = skills_to_job.job_id
+    WHERE
+        job_postings.job_work_from_home = 'TRUE' and 
+        job_postings.job_title_short = 'Data Analyst'
+    GROUP BY
+        skill_id
+)
+SELECT
+    skills.skill_id,
+    skills as skill_name,
+    skill_count
+FROM
+    remote_job_skills
+INNER JOIN 
+    skills_dim AS skills ON skills.skill_id = remote_job_skills.skill_id
+ORDER BY 
+    skill_count DESC;
