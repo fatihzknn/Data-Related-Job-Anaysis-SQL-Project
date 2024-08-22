@@ -56,11 +56,35 @@ WHERE
 ORDER BY
     avg_of_salary DESC,
     demand_count DESC
-LIMIT 25
+LIMIT 25;
+
+
+-- rewriting this same query more concisely
+SELECT 
+    skills_dim.skill_id,
+    skills_dim.skills,
+    COUNT(skills_job_dim.job_id) AS demand_count,
+    ROUND(AVG(job_postings_fact.salary_year_avg), 0) AS avg_salary
+FROM job_postings_fact
+INNER JOIN skills_job_dim ON job_postings_fact.job_id = skills_job_dim.job_id
+INNER JOIN skills_dim ON skills_job_dim.skill_id = skills_dim.skill_id
+WHERE
+    job_title_short = 'Data Analyst'
+    AND salary_year_avg IS NOT NULL
+    AND job_work_from_home = True 
+GROUP BY
+    skills_dim.skill_id
+HAVING
+    COUNT(skills_job_dim.job_id) > 10
+ORDER BY
+    avg_salary DESC,
+    demand_count DESC
+LIMIT 25;
 
 
 /*
-	1.	High Demand for Data-Related Skills: Skills like Python and Tableau show exceptionally high demand, indicating that data analysis, manipulation, and visualization are critical in today’s job market. These skills are foundational for roles in data science, analytics, and business intelligence.
-	2.	Cloud Technologies on the Rise: Snowflake, Azure, AWS, and BigQuery are prominent cloud technologies with substantial demand and competitive salaries, reflecting the ongoing shift toward cloud-based solutions in organizations.
-	3.	Traditional Programming Languages Remain Relevant: Despite the emergence of new technologies, traditional programming languages like Java and C++ continue to be in demand, showcasing their continued relevance in software development and enterprise applications.
-*/
+	Here's a breakdown of the most optimal skills for Data Analysts in 2023: 
+High-Demand Programming Languages: Python and R stand out for their high demand, with demand counts of 236 and 148 respectively. Despite their high demand, their average salaries are around $101,397 for Python and $100,499 for R, indicating that proficiency in these languages is highly valued but also widely available.
+Cloud Tools and Technologies: Skills in specialized technologies such as Snowflake, Azure, AWS, and BigQuery show significant demand with relatively high average salaries, pointing towards the growing importance of cloud platforms and big data technologies in data analysis.
+Business Intelligence and Visualization Tools: Tableau and Looker, with demand counts of 230 and 49 respectively, and average salaries around $99,288 and $103,795, highlight the critical role of data visualization and business intelligence in deriving actionable insights from data.
+Database Technologies: The demand for skills in traditional and NoSQL databases (Oracle, SQL Server, NoSQL) with average salaries ranging from $97,786 to $104,534, reflects the enduring need for data storage, retrieval, and management expertise.
